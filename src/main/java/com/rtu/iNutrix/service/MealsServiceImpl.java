@@ -16,6 +16,7 @@ import com.rtu.iNutrix.service.interfaces.MealsService;
 import com.rtu.iNutrix.service.interfaces.ProductsService;
 import com.rtu.iNutrix.service.interfaces.UserDataService;
 import com.rtu.iNutrix.utilities.constants.LookUpConstants;
+import com.rtu.iNutrix.utilities.errors.SolverErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +48,7 @@ public class MealsServiceImpl implements MealsService {
     }
 
     @Override
-    public DietDayMetaData getDietDayMetadata() throws IllegalAccessException {
+    public DietDayMetaData getDietDayMetadata() throws IllegalAccessException, SolverErrorCodes.SolutionNotFoundException {
         Loader.loadNativeLibraries();
         MPSolver solver = MPSolver.createSolver("GLOP");
 
@@ -146,8 +147,10 @@ public class MealsServiceImpl implements MealsService {
 
         objective.setMaximization();
 
-        solver.solve();
-
+        final MPSolver.ResultStatus resultStatus = solver.solve();
+        if (resultStatus == MPSolver.ResultStatus.INFEASIBLE | resultStatus == MPSolver.ResultStatus.NOT_SOLVED) {
+            throw new SolverErrorCodes.SolutionNotFoundException();
+        }
 
         List<DailyProduct> mealProducts = new ArrayList<>();
 
@@ -172,7 +175,7 @@ public class MealsServiceImpl implements MealsService {
     }
 
     @Override
-    public DietDTO createDiet(int days) throws IllegalAccessException {
+    public DietDTO createDiet(int days) throws IllegalAccessException, SolverErrorCodes.SolutionNotFoundException {
 
         DietDTO dietDTO = new DietDTO();
         List<DietDayDTO> dietDayDTOS = new ArrayList<>();

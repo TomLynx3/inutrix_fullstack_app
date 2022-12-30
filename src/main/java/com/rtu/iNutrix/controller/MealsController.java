@@ -6,8 +6,14 @@ import com.rtu.iNutrix.models.DTO.Meals.DietDTO;
 import com.rtu.iNutrix.models.DTO.Meals.DietRequest;
 import com.rtu.iNutrix.service.interfaces.DietService;
 import com.rtu.iNutrix.service.interfaces.MealsService;
+import com.rtu.iNutrix.utilities.errors.ApiErrorBuilder;
+import com.rtu.iNutrix.utilities.errors.SolverErrorCodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/meals")
@@ -18,15 +24,30 @@ public class MealsController {
 
     private  final DietService _dietService;
 
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     public MealsController(MealsService mealsService,DietService dietService){
         this._mealsService = mealsService;
         this._dietService = dietService;
     }
 
+    @ExceptionHandler(Exception.class)
+    public BaseResponse handleException(HttpServletRequest req, Exception ex) {
+
+        BaseResponse res = new BaseResponse();
+
+        if (ex instanceof SolverErrorCodes.SolutionNotFoundException) {
+            ApiErrorBuilder.buildError(res,SolverErrorCodes.SolutionNotFound,ex.getLocalizedMessage());
+        }
+        logger.error(ex.getLocalizedMessage());
+
+        return res;
+    }
+
 
     @PostMapping("/create-diet")
-    public  BaseResponse createDiet(@RequestBody DietRequest req) throws IllegalAccessException {
+    public  BaseResponse createDiet(@RequestBody DietRequest req) throws IllegalAccessException, SolverErrorCodes.SolutionNotFoundException {
 
         BaseResponse res = new BaseResponse();
 
