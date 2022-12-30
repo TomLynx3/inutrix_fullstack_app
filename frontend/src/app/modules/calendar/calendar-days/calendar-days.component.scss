@@ -53,3 +53,36 @@
 .carousel-container > div {
   border-radius: 1rem;
 }
+
+@media screen and (max-width: 1600px) {
+
+  .carousel-container {
+    margin-left: 1rem;
+  
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    .day-item {
+      width: 150px;
+      height: 150px;
+  
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+  
+      .date {
+        font-size: 1.2em;
+        color: $main-color;
+        font-weight: bold;
+        margin-top: 2rem;
+        text-align: center;
+      }
+      .date p {
+        margin: 10px 0 12px;
+      }
+    }
+  }
+}
